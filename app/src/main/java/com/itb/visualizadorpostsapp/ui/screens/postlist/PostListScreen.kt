@@ -54,18 +54,23 @@ fun PostListScreen(
                 .padding(paddingValues)
         ) {
             when (val state = uiState) {
-                is PostListUiState.Loading -> {
-                    LoadingIndicator()
+                 PostListUiState.Loading -> {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        /*Text("Loading...")
+                        Spacer(modifier = Modifier.height(16.dp))*/
+                        LoadingIndicator()
+                    }
                 }
 
                 is PostListUiState.Success -> {
                     Column {
-                        // Mostramos el banner del modo offline
                         if (state.isOffline) {
                             OfflineBanner()
                         }
-
-                        // Lista de posts
                         PostList(
                             posts = state.posts,
                             onPostClick = onPostClick
@@ -74,21 +79,10 @@ fun PostListScreen(
                 }
 
                 is PostListUiState.Error -> {
-                    if (state.posts.isEmpty()) {
-                        ErrorMessage(
-                            message = state.message,
-                            onRetry = { viewModel.loadPosts() }
-                        )
-                    } else {
-                        // Mostramos los datos locales en caso de error
-                        Column {
-                            OfflineBanner()
-                            PostList(
-                                posts = state.posts,
-                                onPostClick = onPostClick
-                            )
-                        }
-                    }
+                    ErrorMessage(
+                        message = state.message,
+                        onRetry = { viewModel.loadPosts() }
+                    )
                 }
             }
         }

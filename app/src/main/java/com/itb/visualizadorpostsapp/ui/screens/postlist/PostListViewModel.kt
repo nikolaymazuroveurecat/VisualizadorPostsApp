@@ -3,6 +3,7 @@ package com.itb.visualizadorpostsapp.ui.screens.postlist
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.itb.visualizadorpostsapp.domain.repository.PostRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,7 +21,11 @@ class PostListViewModel(
     val uiState: StateFlow<PostListUiState> = _uiState.asStateFlow()
 
     init {
-        loadPosts()
+        viewModelScope.launch {
+            _uiState.value = PostListUiState.Loading
+            delay(4000)
+            loadPosts()
+        }
     }
 
     /**
@@ -57,10 +62,11 @@ class PostListViewModel(
             try {
                 repository.refreshPosts()
             } catch (e: Exception) {
-                // Si el estado actual es Success, mostramos el modo offline
                 val currentState = _uiState.value
                 if (currentState is PostListUiState.Success) {
                     _uiState.value = currentState.copy(isOffline = true)
+                } else {
+                    _uiState.value = PostListUiState.Error("Comprueba tu conexión a internet")
                 }
             }
         }
